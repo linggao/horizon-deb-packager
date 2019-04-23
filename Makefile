@@ -121,6 +121,11 @@ $(call dist_dir,%)/debian/fs-horizon: $(shell find pkgsrc/seed) | $(call dist_di
 		./pkgsrc/render-json-config ./pkgsrc/seed/dynamic/anax.json.tmpl $$dir/etc/horizon/anax.json.example && \
 		cp pkgsrc/mk-dir-trees $$dir/usr/horizon/sbin/
 
+$(call dist_dir,%)/debian/fs-horizon-cli: $(shell find pkgsrc/seed) | $(call dist_dir,%)/debian
+	dir=$(call dist_dir,$*)/debian/fs-horizon-cli && \
+		mkdir -p $$dir/etc/horizon && \
+		cp ./pkgsrc/seed/dynamic/hzn.json.tmpl > $$dir/etc/horizon
+
 $(call dist_dir,%)/debian/fs-bluehorizon: $(call dist_dir,%)/debian/fs-horizon $(shell find pkgsrc/seed) | $(call dist_dir,%)/debian
 	dir=$(call dist_dir,$*)/debian/fs-bluehorizon && \
 		mkdir -p $$dir && \
@@ -174,7 +179,7 @@ dist/bluehorizon$(call file_version,%)_all.deb:
 $(cli_deb_packages):
 dist/horizon-cli$(call file_version,%)_$(arch).deb:
 $(horizon_deb_packages):
-dist/horizon$(call file_version,%)_$(arch).deb: dist/horizon$(call file_version,%).dsc
+dist/horizon$(call file_version,%)_$(arch).deb: $(call dist_dir,%)/debian/fs-horizon-cli dist/horizon$(call file_version,%).dsc
 	@echo "Running bin pkg build in $*; using dist/horizon$(call file_version,$*).dsc' (building $(horizon_deb_packages))"
 	-rm -Rf $(call dist_dir,$*)
 	dpkg-source -x dist/horizon$(call file_version,$*).dsc $(call dist_dir,$*)
